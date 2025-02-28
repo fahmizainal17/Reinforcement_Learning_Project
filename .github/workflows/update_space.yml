@@ -1,28 +1,26 @@
-name: Run Python script
+name: Deploy to Hugging Face Spaces
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.12.8'
-
-    - name: Install Gradio
-      run: python -m pip install gradio
-
-    - name: Log in to Hugging Face
-      run: python -c 'import huggingface_hub; huggingface_hub.login(token="${{ secrets.hf_token }}")'
-
-    - name: Deploy to Spaces
-      run: gradio deploy
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.8'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install huggingface_hub gradio
+      - name: Login to Hugging Face
+        run: |
+          echo ${{ secrets.HF_TOKEN }} | huggingface-cli login
+      - name: Deploy to Spaces
+        run: |
+          # Use --yes to automatically accept prompts
+          gradio deploy --yes
