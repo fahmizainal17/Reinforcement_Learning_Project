@@ -18,8 +18,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install huggingface_hub
       - name: Login to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          echo ${{ secrets.HF_TOKEN }} | huggingface-cli login
+          echo $HF_TOKEN | huggingface-cli login
       - name: Deploy to Spaces
         run: |
           # Create space.yml if it doesn't exist
@@ -34,4 +36,4 @@ jobs:
           fi
           # Push to Hugging Face Space
           huggingface-cli repo create fahmizainal17/Q-Learning_GridWorld_Simulator --type space || true
-          huggingface-cli upload fahmizainal17/Q-Learning_GridWorld_Simulator * --repo-type space
+          huggingface-cli upload --repo fahmizainal17/Q-Learning_GridWorld_Simulator --repo-type space *
