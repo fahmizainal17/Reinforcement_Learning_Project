@@ -12,15 +12,26 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12.8'
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install huggingface_hub gradio
+          pip install huggingface_hub
       - name: Login to Hugging Face
         run: |
           echo ${{ secrets.HF_TOKEN }} | huggingface-cli login
       - name: Deploy to Spaces
         run: |
-          # Use --yes to automatically accept prompts
-          gradio deploy --yes
+          # Create space.yml if it doesn't exist
+          if [ ! -f "space.yml" ]; then
+            echo "title: Q-Learning GridWorld Simulator" > space.yml
+            echo "emoji: 🤖" >> space.yml
+            echo "colorFrom: blue" >> space.yml
+            echo "colorTo: green" >> space.yml
+            echo "sdk: gradio" >> space.yml
+            echo "sdk_version: 4.0.0" >> space.yml
+            echo "app_file: rl_gradio.py" >> space.yml
+          fi
+          # Push to Hugging Face Space
+          huggingface-cli repo create fahmizainal17/Q-Learning_GridWorld_Simulator --type space || true
+          huggingface-cli upload fahmizainal17/Q-Learning_GridWorld_Simulator * --repo-type space
